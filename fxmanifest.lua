@@ -1,12 +1,14 @@
 fx_version 'cerulean'
 game 'gta5'
 
-description 'ps-hud'
+description 'ps-hud ESX by qiushuangqaq'
 version '2.1.2'
 
 shared_scripts {
-	'@qb-core/shared/locale.lua',
-	'locales/en.lua',
+	'@es_extended/imports.lua',
+	'@ox_lib/init.lua',
+	'locale.lua',
+	'locales/zh-cn.lua',
 	'locales/*.lua',
 	'config.lua',
 	'uiconfig.lua'
@@ -21,4 +23,9 @@ ui_page 'html/index.html'
 
 files {
 	'html/*',
+}
+
+dependencies {
+	'es_extended',
+	'ox_lib'
 }

@@ -1,9 +1,3 @@
-# Archiving Older Repos (Focus on ps-mdt v3)
-
-To help streamline things a bit around here (for the little work we actually do 😅), I’m going to be archiving the repos listed below. This doesn’t mean they’re broken or unusable, it just means we won’t be pushing any further updates to them for now.
-
-Our main focus moving forward will be ps-mdt v3 and its dependencies.
-
 ![Project Sloth GitHub Project PS-HUD Banner](https://user-images.githubusercontent.com/91661118/170896135-fead50a0-2a4b-432d-8469-038acfb4f2f3.png)
 
 ### ps-hud
@@ -90,39 +84,4 @@ Inspiration and some code snippets from [Svelte & Lua Boilerplate](https://githu
 
 ### Unsupported [ESX Version](https://github.com/reyyghi/ps-hud) made by [reyyghi](https://github.com/reyyghi)
 
-
----
-
-# 1of1 Servers - VPS & Dedicated Servers
-
-[![1of1 Servers](https://github.com/user-attachments/assets/29e4ef8e-7b24-4821-a6ce-7c9e3c111fd1)](https://billing.1of1servers.com/aff.php?aff=1)
-
-We are a VPS and dedicated server provider, specializing in strong gaming DDoS protection and 99.9% uptime.  
-
-We host some of the biggest FiveM servers in the industry such as Prodigy RP, Smile RP, The Academy RP, and many more.  
-
----
-
-### Features
-- 4 Tbps DDoS Protection by CosmicGuard  
-- 99.9% Network Uptime  
-- NVMe SSD Storage  
-- Unlimited Player Slots  
-- Free transfer of files and setup  
-- Free Windows licenses  
-- Windows Remote Desktop  
-- 24/7 Support with ~30 min average ticket response  
-
----
-
-### Locations
-- USA: Dallas, Ashburn, Los Angeles, Chicago  
-- Europe: UK, Germany, Netherlands  
-- Asia: Singapore  
-- Australia: Sydney  
-
----
-
-### Links
-- [Website](https://billing.1of1servers.com/aff.php?aff=1)
-- [Discord](https://discord.gg/1of1servers)  
+#### Copyright © 2022 Project Sloth.

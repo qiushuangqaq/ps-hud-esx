@@ -1,76 +1,49 @@
-local QBCore = exports['qb-core']:GetCoreObject()
-local ResetStress = false
+local ESX = exports["es_extended"]:getSharedObject()
 
-QBCore.Commands.Add('cash', Lang:t('info.check_cash_balance'), {}, false, function(source, args)
-    local Player = QBCore.Functions.GetPlayer(source)
-    local cashamount = Player.PlayerData.money.cash
-    TriggerClientEvent('hud:client:ShowAccounts', source, 'cash', cashamount)
-end)
+local function isAdmin(src)
+    local xPlayer = ESX.GetPlayerFromId(src)
+    if xPlayer and (xPlayer.getGroup() == 'admin' or xPlayer.getGroup() == 'superadmin') then
+        return true
+    end
+    return IsPlayerAceAllowed(src, 'command')
+end
 
-QBCore.Commands.Add('bank', Lang:t('info.check_bank_balance'), {}, false, function(source, args)
-    local Player = QBCore.Functions.GetPlayer(source)
-    local bankamount = Player.PlayerData.money.bank
-    TriggerClientEvent('hud:client:ShowAccounts', source, 'bank', bankamount)
-end)
-
-QBCore.Commands.Add("dev", Lang:t('info.toggle_dev_mode'), {}, false, function(source, args)
-    TriggerClientEvent("qb-admin:client:ToggleDevmode", source)
-end, 'admin')
-
-RegisterNetEvent('hud:server:GainStress', function(amount)
+RegisterNetEvent('hud:server:GetMoney', function()
     local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    local newStress
-    if not Player or (Config.DisablePoliceStress and Player.PlayerData.job.name == 'police') then return end
-    if not ResetStress then
-        if not Player.PlayerData.metadata['stress'] then
-            Player.PlayerData.metadata['stress'] = 0
-        end
-        newStress = Player.PlayerData.metadata['stress'] + amount
-        if newStress <= 0 then newStress = 0 end
-    else
-        newStress = 0
+    local xPlayer = ESX.GetPlayerFromId(src)
+    if xPlayer ~= nil then
+        local cash = xPlayer.getMoney()
+        local bank = xPlayer.getAccount('bank') and xPlayer.getAccount('bank').money or 0
+        TriggerClientEvent('hud:client:OnMoneyChange', src, cash, bank)
     end
-    if newStress > 100 then
-        newStress = 100
-    end
-    Player.Functions.SetMetaData('stress', newStress)
-    TriggerClientEvent('hud:client:UpdateStress', src, newStress)
-    TriggerClientEvent('QBCore:Notify', src, Lang:t("notify.stress_gain"), 'error', 1500)
 end)
 
-RegisterNetEvent('hud:server:RelieveStress', function(amount)
-    local src = source
-    local Player = QBCore.Functions.GetPlayer(src)
-    local newStress
-    if not Player then return end
-    if not ResetStress then
-        if not Player.PlayerData.metadata['stress'] then
-            Player.PlayerData.metadata['stress'] = 0
-        end
-        newStress = Player.PlayerData.metadata['stress'] - amount
-        if newStress <= 0 then newStress = 0 end
-    else
-        newStress = 0
-    end
-    if newStress > 100 then
-        newStress = 100
-    end
-    Player.Functions.SetMetaData('stress', newStress)
-    TriggerClientEvent('hud:client:UpdateStress', src, newStress)
-    TriggerClientEvent('QBCore:Notify', src, Lang:t("notify.stress_removed"))
+RegisterNetEvent('hud:server:MalusCheck', function()
 end)
+
+ESX.RegisterCommand('cash', 'user', function(xPlayer, args, showError)
+    local cashamount = xPlayer.getMoney()
+    TriggerClientEvent('hud:client:ShowAccounts', xPlayer.source, 'cash', cashamount)
+end, false, { help = Lang:t('info.check_cash_balance') })
+
+ESX.RegisterCommand('bank', 'user', function(xPlayer, args, showError)
+    local bankAccount = xPlayer.getAccount('bank')
+    local bankamount = bankAccount and bankAccount.money or 0
+    TriggerClientEvent('hud:client:ShowAccounts', xPlayer.source, 'bank', bankamount)
+end, false, { help = Lang:t('info.check_bank_balance') })
+
+ESX.RegisterCommand('dev', 'admin', function(xPlayer, args, showError)
+    TriggerClientEvent("qb-admin:client:ToggleDevmode", xPlayer.source)
+end, false, { help = Lang:t('info.toggle_dev_mode') })
 
 RegisterNetEvent('hud:server:saveUIData', function(data)
     local src = source
-	-- Check Permissions
-    if not QBCore.Functions.HasPermission(src, 'admin') and not IsPlayerAceAllowed(src, 'command') then
+    if not isAdmin(src) then
 		return
 	end
 
-    -- Ensure a player is invoking this net event
-    local Player = QBCore.Functions.GetPlayer(src)
-	if not Player then return end
+    local xPlayer = ESX.GetPlayerFromId(src)
+	if not xPlayer then return end
 
     local uiConfigData = {}
     uiConfigData.icons = {}
@@ -82,10 +55,8 @@ RegisterNetEvent('hud:server:saveUIData', function(data)
     local heading = "UIConfig = {}\n"
     file:write(heading)
 
-    -- write out icons
     file:write("\nUIConfig.icons = {}\n")
     
-    -- Sort the icons so its easier to find in the config file
     local iconKeys = {}
     for k, _ in pairs(data.icons) do
         table.insert(iconKeys, k)
@@ -98,7 +69,6 @@ RegisterNetEvent('hud:server:saveUIData', function(data)
         local iconLabel = "\nUIConfig.icons['"..iconName.."'] = {"
         file:write(iconLabel)
 
-        -- sort the values as well inside icons
         local iconValues = {}
         for k, _ in pairs(data.icons[iconName]) do
             table.insert(iconValues, k)
@@ -120,7 +90,6 @@ RegisterNetEvent('hud:server:saveUIData', function(data)
     end
 
 
-    --local layoutLabel = "\nUIConfig.layout = '"..data.layout.."'\n"
     local layoutLabel = "\nUIConfig.layout = {"
     file:write(layoutLabel)
     for layoutName, layoutVal in pairs(data.layout) do
@@ -136,11 +105,9 @@ RegisterNetEvent('hud:server:saveUIData', function(data)
     uiConfigData.layout = data.layout
 
 
-    -- write out color icons info
     file:write("\nUIConfig.colors = {}\n")
     uiConfigData.colors = {}
 
-    -- Sort the color keys
     local colorKeys = {}
     for k, _ in pairs(data.colors) do
         table.insert(colorKeys, k)
@@ -161,7 +128,6 @@ RegisterNetEvent('hud:server:saveUIData', function(data)
             local colorEffectIndexLabel = "\n        ["..k.."] = {"
             file:write(colorEffectIndexLabel)
 
-            -- sort the values as well inside color effects
             local colorEffect = data.colors[colorName].colorEffects[k]
             local colorEffectkeys = {}
             for scekey, _ in pairs(colorEffect) do
@@ -190,17 +156,15 @@ RegisterNetEvent('hud:server:saveUIData', function(data)
 
     UIConfig = uiConfigData
 
-    -- -1 to send to all players
     TriggerClientEvent('hud:client:UpdateUISettings', -1, uiConfigData)
 end)
 
-QBCore.Functions.CreateCallback('hud:server:getMenu', function(source, cb)
+ESX.RegisterServerCallback('hud:server:getMenu', function(source, cb)
     cb(Config.Menu)
-end) 
+end)
 
-QBCore.Functions.CreateCallback('hud:server:getRank', function(source, cb)
-    local src = source
-    if QBCore.Functions.HasPermission(src, 'admin') or IsPlayerAceAllowed(src, 'command') then
+ESX.RegisterServerCallback('hud:server:getRank', function(source, cb)
+    if isAdmin(source) then
         cb(true)
     else
         cb(false)
